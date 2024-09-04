@@ -1,0 +1,110 @@
+version: "3.7"
+services:
+  discovery-service:
+    image: discovery-image-for-bank-account-microservices-arch
+    container_name: discovery-service-for-bank-account-microservices-arch
+    ports:
+      - "8761:8761"
+    networks:
+      - bank-account-microservices-arch
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 20s
+      retries: 4
+
+  config-service:
+    image: config-image-for-bank-account-microservices-arch
+    container_name: config-service-for-bank-account-microservices-arch
+    ports:
+      - "9090:9090"
+    environment:
+      - GIT_REPO_URL=https://github.com/yassirmerfouk/config-repo.git
+    networks:
+      - bank-account-microservices-arch
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9090/actuator/health" ]
+      interval: 20s
+      retries: 4
+
+  gateway-service:
+    image: gateway-image-for-bank-account-microservices-arch
+    container_name: gateway-service-for-bank-account-microservices-arch
+    ports:
+      - "8080:8080"
+    environment:
+      - CONFIG_SERVICE_URL=http://config-service-for-bank-account-microservices-arch:9090
+      - DISCOVERY_SERVICE_URL=http://discovery-service-for-bank-account-microservices-arch:8761/eureka
+    networks:
+      - bank-account-microservices-arch
+    depends_on:
+      config-service:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+
+  customer-service:
+    image: customer-image-for-bank-account-microservices-arch
+    container_name: customer-service-for-bank-account-microservices-arch
+    ports:
+      - "8081:8081"
+    environment:
+      - CONFIG_SERVICE_URL=http://config-service-for-bank-account-microservices-arch:9090
+      - DISCOVERY_SERVICE_URL=http://discovery-service-for-bank-account-microservices-arch:8761/eureka
+      - DB_DATASOURCE_URL=jdbc:mysql://mysql-service-for-bank-account-microservices-arch:3306/customers_db
+      - DATA_SOURCE_USERNAME=root
+      - DATA_SOURCE_PASSWORD=root
+    networks:
+      - bank-account-microservices-arch
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8081/actuator/health" ]
+      interval: 20s
+      retries: 4
+    depends_on:
+      config-service:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  accounts-service:
+    image: accounts-image-for-bank-account-microservices-arch
+    container_name: accounts-service-for-bank-account-microservices-arch
+    ports:
+      - "8082:8082"
+    environment:
+      - CONFIG_SERVICE_URL=http://config-service-for-bank-account-microservices-arch:9090
+      - DISCOVERY_SERVICE_URL=http://discovery-service-for-bank-account-microservices-arch:8761/eureka
+      - DB_DATASOURCE_URL=jdbc:mysql://mysql-service-for-bank-account-microservices-arch:3306/accounts_db
+      - DATA_SOURCE_USERNAME=root
+      - DATA_SOURCE_PASSWORD=root
+    networks:
+      - bank-account-microservices-arch
+    depends_on:
+      config-service:
+        condition: service_healthy
+      discovery-service:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+      customer-service:
+        condition: service_healthy
+
+  db:
+    image: mysql
+    container_name: mysql-service-for-bank-account-microservices-arch
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=customers_db
+      - MYSQL_DATABASE=accounts_db
+    networks:
+      bank-account-microservices-arch:
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 20s
+      retries: 4
+
+networks:
+  bank-account-microservices-arch:

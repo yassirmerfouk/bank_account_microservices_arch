@@ -9,17 +9,21 @@
         <outputRelativeToContentRoot value="true" />
         <module name="accounts_microservice" />
         <module name="customer_microservice" />
-        <module name="discrovery" />
         <module name="config" />
         <module name="gateway" />
+        <module name="discovery" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="discrovery" target="17" />
+    </bytecodeTargetLevel>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="accounts_microservice" options="-parameters" />
       <module name="config" options="-parameters" />
       <module name="customer_microservice" options="-parameters" />
+      <module name="discovery" options="-parameters" />
       <module name="discrovery" options="-parameters" />
       <module name="gateway" options="-parameters" />
     </option>

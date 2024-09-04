@@ -20,18 +20,20 @@ public class CustomerMicroserviceApplication {
         return new CommandLineRunner() {
             @Override
             public void run(String... args) throws Exception {
-                Customer customer1 = Customer.builder()
-                        .firstName("Yassir")
-                        .lastName("Merfouk")
-                        .email("yassirmerfouk@gmail.com")
-                        .build();
-                Customer customer2 = Customer.builder()
-                        .firstName("Ym")
-                        .lastName("Merfouk")
-                        .email("ym@gmail.com")
-                        .build();
-                customerRepository.save(customer1);
-                customerRepository.save(customer2);
+                if(customerRepository.count() == 0){
+                    Customer customer1 = Customer.builder()
+                            .firstName("Yassir")
+                            .lastName("Merfouk")
+                            .email("yassirmerfouk@gmail.com")
+                            .build();
+                    Customer customer2 = Customer.builder()
+                            .firstName("Ym")
+                            .lastName("Merfouk")
+                            .email("ym@gmail.com")
+                            .build();
+                    customerRepository.save(customer1);
+                    customerRepository.save(customer2);
+                }
             }
         };
     }

@@ -19,7 +19,7 @@ public class ConfigTest {
     @Value("${accounts.params.b}")
     private int b;
 
-    @GetMapping("/testconfig1")
+    @GetMapping("/test-config-1")
     public Map<String, Integer> testConfig1(){
         Map<String,Integer> params = new HashMap<>();
         params.put("x", x);
